@@ -5,19 +5,17 @@
 #include "../include/TAD_Mapa.h"
 #include "../include/TAD_Nave.h"
 
-
 void menu();
 void leituraDeArquivo(Mapa * mapa, Nave * nave);
 
 int main(){
-    
     menu();
 
     return 0;
 }
 
 void menu(){
-    int modoDeAnalise = 0;
+    short modoDeAnalise = 0;//flag para printar ou não a analise de recursividade
     printf("Seja bem vindo ao sistema operacional do Expresso Interestelar!\n");
 
     Mapa mapa;
@@ -45,8 +43,7 @@ void menu(){
             leituraDeArquivo(&mapa, &nave);
             break;
         case 2:
-            //Iniciar jornada
-            
+            ViagemInterestelar(&nave, &mapa, modoDeAnalise);
             break;
         case 3:
             
@@ -75,7 +72,6 @@ void menu(){
 
 
 }
-
 
 void leituraDeArquivo(Mapa * mapa, Nave * nave){
 
@@ -113,14 +109,15 @@ void leituraDeArquivo(Mapa * mapa, Nave * nave){
     fscanf(file, "%d %d", &altura, &largura); fgetc(file);
     
     InicializaMapaVazio(mapa, altura, largura);
-
+    
     
     for(int i = 0; i< altura; i++){
         for(int j = 0; j < largura; j++){
-            fscanf(file,"%c", &mapa->posicoes[i][j]);
-            if(mapa->posicoes[i][j] == 'X'){
-                nave->coordenadasPosicao[0] = j;
-                nave->coordenadasPosicao[1] = i;
+            fscanf(file,"%c", &mapa->posicoes[i][j].caractere);
+            mapa->posicoes[i][j].visitado = 0;
+            if(mapa->posicoes[i][j].caractere == 'X'){
+                int vetorPosicaoInicialDaNave[2] = {i,j}; //A partir do momento em que acha a posicao inicial da nave, inicializa ela com todas as informaçoes
+                InicializaNave(nave,durabilidade,fatorDecaimento,fatorAumento,vetorPosicaoInicialDaNave);
             }
         }
         fgetc(file);
