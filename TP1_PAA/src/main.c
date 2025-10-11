@@ -4,6 +4,7 @@
 
 #include "../include/TAD_Mapa.h"
 #include "../include/TAD_Nave.h"
+#include "../include/TAD_GeradorMapa.h"
 
 void menu();
 void leituraDeArquivo(Mapa * mapa, Nave * nave);
@@ -32,6 +33,7 @@ void menu(){
         }else{
             printf("3- Ativar modo de analise\n");
         }
+        printf("4 - Gerar um novo mapa\n");
         printf("0- Sair\n");
 
         printf("Escolha uma opcao acima:\n");
@@ -56,7 +58,10 @@ void menu(){
             }
 
             break;
-            
+        
+        case 4:
+            criaMapaAleatorio();
+            break;
         case 0:
             printf("Fechando programa...\n");
             return;
