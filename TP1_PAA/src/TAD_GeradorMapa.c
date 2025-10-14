@@ -19,6 +19,7 @@ int setorValido(Mapa *mapa, int y, int x) {
     return (c == '.');
 }
 
+
 void adicionaCruzamento(Mapa *mapa, int y, int x) {
     if(mapa->posicoes[y][x].caractere == 'F'){
         return;
@@ -90,30 +91,31 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
     }
 }
 
-void criaPercursoMapa(Mapa *mapa, int *pecas, int posXIni, int posYIni, int posXfim, int posYfim) {
-    printf(" inicio: %d %d", posYIni, posXIni);
-    printf(" fim: %d %d\n", posYfim, posXfim);
-    fazCaminhoEntrePontos(mapa,pecas, posYIni, posXIni, posYfim, posXfim);
-    criaNovaRota(mapa,pecas,posYIni, posXIni);
+void criaPercursoMapa(Mapa *mapa, int *pecas, int y, int x, int xFim, int yFim) {
+    printf(" inicio: %d %d", y, x);
+    printf(" fim: %d %d\n", yFim, xFim);
+    fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
+    criaNovaRota(mapa,pecas,y, x);
+    //criaCruzamentoPrevisto(mapa,posXIni,posXfim,posYfim,posYfim);
 }
 
 
 void preencheMapa(Mapa *mapa, int *pecas){
-    int posY = gerarNmrAleatorio(0, mapa->altura - 1); 
-    int posX = gerarNmrAleatorio(0, mapa->largura - 1);
-    mapa->posicoes[posY][posX].caractere = 'X';
+    int y = gerarNmrAleatorio(0, mapa->altura - 1); 
+    int x = gerarNmrAleatorio(0, mapa->largura - 1);
+    mapa->posicoes[y][x].caractere = 'X';
 
-    int fposY = 0;
-    int fposX = 0;
+    int yFim = 0;
+    int xFim = 0;
     int distancia = 0;
     do {
-        fposY = gerarNmrAleatorio(0, mapa->altura - 1);
-        fposX = gerarNmrAleatorio(0, mapa->largura - 1);
-        distancia = abs(fposY - posY) + abs(fposX - posX);
+        yFim = gerarNmrAleatorio(0, mapa->altura - 1);
+        xFim = gerarNmrAleatorio(0, mapa->largura - 1);
+        distancia = abs(yFim - y) + abs(xFim - x);
     } while (distancia < 2); // garantir 2 de distancia entre X e F pra n dar BO
 
-    mapa->posicoes[fposY][fposX].caractere = 'F';
-    criaPercursoMapa(mapa, pecas, posX, posY, fposX, fposY);
+    mapa->posicoes[yFim][xFim].caractere = 'F';
+    criaPercursoMapa(mapa, pecas, y,x, xFim, yFim);
 }
 
 void criaMapaAleatorio(){
