@@ -4,17 +4,6 @@
 
 #include "../include/TAD_GeradorMapa.h"
 
-#define largMin 6
-#define largMax 10
-#define altMin 6
-#define altMax 10
-#define duraMin 40
-#define duraMax 50
-#define decaiMin 3
-#define decaiMax 5
-#define regenMin 5
-#define regenMax 10
-
 char fig[4] = {'P', '-', '|', '+'};
 
 int gerarNmrAleatorio(int min, int max){
@@ -22,29 +11,41 @@ int gerarNmrAleatorio(int min, int max){
 }
 
 int setorValido(Mapa *mapa, int y, int x) {
-    return y >= 0 && y < mapa->altura && x >= 0 && x < mapa->largura
-           && mapa->posicoes[y][x].caractere == '.';
+    if (y < 0 || y >= mapa->altura || x < 0 || x >= mapa->largura)
+        return 0;
+
+    char c = mapa->posicoes[y][x].caractere;
+
+    return (c == '.');
 }
 
+
 void adicionaCruzamento(Mapa *mapa, int y, int x) {
+    if(mapa->posicoes[y][x].caractere == 'F'){
+        return;
+    }else
     mapa->posicoes[y][x].caractere = fig[3];
 }
 
-void criaNovaRota(Mapa *mapa, int yFim, int xFim){
+void criaNovaRota(Mapa *mapa,int *pecas, int yFim, int xFim){
     int y = 0;
     int x = 0;
 
-    do {
-    y = gerarNmrAleatorio(0, mapa->altura - 1);
-    x = gerarNmrAleatorio(0, mapa->largura - 1);
-    } while (setorEhValido(mapa,y,x));
+   do {
+        y = gerarNmrAleatorio(0, mapa->altura - 1);
+        x = gerarNmrAleatorio(0, mapa->largura - 1);
+        
+    }while ((abs(yFim - y) <= 1 || abs(xFim - x) <= 1)|| !setorValido(mapa, y, x) 
+    || mapa->posicoes[y][x].caractere == 'F');
 
-    adicionaElementos(mapa, y, x, yFim, xFim);
-    adicionaElementos(mapa,yFim,xFim,y,x);
+    //mapa->posicoes[y][x].caractere = 'G'; //debugs
+
+    fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
+    fazCaminhoEntrePontos(mapa,pecas,yFim,xFim,y,x);
 }
 
 void adicionaPeca(Mapa *mapa,int *pecas, int y, int x, int yFim, int xFim){
-    if(pecas == NULL || *pecas == 0){
+    if(pecas == NULL || *pecas == 1 ){
         return;
     }else{
         int distanciaFim = abs(yFim - y) + abs(xFim - x);
@@ -55,9 +56,8 @@ void adicionaPeca(Mapa *mapa,int *pecas, int y, int x, int yFim, int xFim){
     }
 }
 
-void adicionaElementos(Mapa *mapa, int y, int x, int yFim, int xFim) {
+void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim) {
     int direcao = -1;
-    int pecas = 1; //depois mudar para de acordo com a dificuldade
 
     while (y != yFim || x != xFim) {
         if (setorValido(mapa, y, x)) {
@@ -86,20 +86,20 @@ void adicionaElementos(Mapa *mapa, int y, int x, int yFim, int xFim) {
                 x = x - 1;
             direcao = 1;
         }
-        adicionaPeca(mapa,&pecas,y,x,yFim,xFim);
+        adicionaPeca(mapa,pecas,y,x,yFim,xFim);
         
     }
 }
 
-void criaPercursoMapa(Mapa *mapa, int posXIni, int posYIni, int posXfim, int posYfim) {
+void criaPercursoMapa(Mapa *mapa, int *pecas, int posXIni, int posYIni, int posXfim, int posYfim) {
     printf(" inicio: %d %d", posYIni, posXIni);
     printf(" fim: %d %d\n", posYfim, posXfim);
-    adicionaElementos(mapa, posYIni, posXIni, posYfim, posXfim);
-    criaNovaRota(mapa,posYfim, posXfim);
+    fazCaminhoEntrePontos(mapa,pecas, posYIni, posXIni, posYfim, posXfim);
+    criaNovaRota(mapa,pecas,posYIni, posXIni);
 }
 
 
-void adicionaElementosMapa(Mapa *mapa){
+void preencheMapa(Mapa *mapa, int *pecas){
     int posY = gerarNmrAleatorio(0, mapa->altura - 1); 
     int posX = gerarNmrAleatorio(0, mapa->largura - 1);
     mapa->posicoes[posY][posX].caractere = 'X';
@@ -114,7 +114,7 @@ void adicionaElementosMapa(Mapa *mapa){
     } while (distancia < 2); // garantir 2 de distancia entre X e F pra n dar BO
 
     mapa->posicoes[fposY][fposX].caractere = 'F';
-    criaPercursoMapa(mapa, posX, posY, fposX, fposY);
+    criaPercursoMapa(mapa, pecas, posX, posY, fposX, fposY);
 }
 
 void criaMapaAleatorio(){
@@ -134,6 +134,7 @@ void criaMapaAleatorio(){
     int durabilidade = gerarNmrAleatorio(duraMin, duraMax);
     int decaimento = gerarNmrAleatorio(decaiMin, decaiMax);
     int regeneracao = gerarNmrAleatorio(regenMin, regenMax);
+    int pecas = 1;
 
     fprintf(fp, "%d %d %d\n", durabilidade, decaimento, regeneracao);
     fprintf(fp, "%d %d\n", altura, largura);
@@ -153,7 +154,10 @@ void criaMapaAleatorio(){
 
     limparMapa(&mapa);
 
-    adicionaElementosMapa(&mapa);
+    printf("Selecione a Dificuldade:\n");
+    printf("1 - Facil: (dimensoes menores, + pecas, + durabilidade");
+    
+    preencheMapa(&mapa,&pecas);
 
     for (int i = 0; i < altura; i++)
     { // escreve no txt
