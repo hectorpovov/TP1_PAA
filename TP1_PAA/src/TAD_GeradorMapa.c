@@ -19,7 +19,6 @@ int setorValido(Mapa *mapa, int y, int x) {
     return (c == '.');
 }
 
-
 void adicionaCruzamento(Mapa *mapa, int y, int x) {
     if(mapa->posicoes[y][x].caractere == 'F'){
         return;
@@ -45,7 +44,7 @@ void criaNovaRota(Mapa *mapa,int *pecas, int yFim, int xFim){
 }
 
 void adicionaPeca(Mapa *mapa,int *pecas, int y, int x, int yFim, int xFim){
-    if(pecas == NULL || *pecas == 1 ){
+    if(pecas == NULL || *pecas <= 0 || mapa->posicoes[y][x].caractere == 'F'){
         return;
     }else{
         int distanciaFim = abs(yFim - y) + abs(xFim - x);
@@ -119,29 +118,19 @@ void preencheMapa(Mapa *mapa, int *pecas){
 
 void criaMapaAleatorio(){
     srand(time(NULL));
-
-    FILE *fp;
-    char *caminho = "input/entrada_criada.txt";
-    fp = fopen(caminho, "w");
-    if (fp == NULL)
-    {
-        printf("Erro ao criar arquivo\n");
-        return;
-    }
+    
+    Mapa mapa;
+    int pecas = 1;
+    int caso = 0;
 
     int largura = gerarNmrAleatorio(largMin, largMax);
     int altura = gerarNmrAleatorio(altMin, altMax);
     int durabilidade = gerarNmrAleatorio(duraMin, duraMax);
     int decaimento = gerarNmrAleatorio(decaiMin, decaiMax);
     int regeneracao = gerarNmrAleatorio(regenMin, regenMax);
-    int pecas = 1;
-
-    fprintf(fp, "%d %d %d\n", durabilidade, decaimento, regeneracao);
-    fprintf(fp, "%d %d\n", altura, largura);
-
-    Mapa mapa;
-
+    
     InicializaMapaVazio(&mapa, altura, largura);
+    limparMapa(&mapa);
 
     for (int i = 0; i < altura; i++)
     { // preencher com . para retirar lixo mem
@@ -152,12 +141,56 @@ void criaMapaAleatorio(){
         }
     }
 
-    limparMapa(&mapa);
+    FILE *fp;
+    char *caminho = "input/entrada_criada.txt";
+    fp = fopen(caminho, "w");
+    if (fp == NULL)
+    {
+        printf("Erro ao criar arquivo\n");
+        return;
+    }
 
     printf("Selecione a Dificuldade:\n");
-    printf("1 - Facil: (dimensoes menores, + pecas, + durabilidade");
+    printf("1 - Facil: (+ pecas, + durabilidade, - decaimento)\n");
+    printf("2 - Medio: (pecas limitadas, + decaimento)\n");
+    printf("3 - Dificil: (limitado de 4 a 5 pecas, - durabilidade, + decaimento)\n");
+    printf("Digite a dificuldade escolhida:");
+    scanf("%d", &caso); //quebra se nao for int
+    printf("\n");
+
+    switch (caso)
+    {
+    case 1:
+        durabilidade = gerarNmrAleatorio(duraMax - 10, duraMax);
+        decaimento = gerarNmrAleatorio(decaiMin, decaiMin + 2);
+        regeneracao = gerarNmrAleatorio(regenMax - 2, regenMax);
+        pecas = (altura + largura) / 3 + 2;
+        break;
+    case 2:
+        durabilidade = gerarNmrAleatorio((duraMin + duraMax) / 2, duraMax - 5);
+        decaimento = gerarNmrAleatorio((decaiMin + decaiMax) / 2, decaiMax);
+        regeneracao = gerarNmrAleatorio(regenMin + 2, regenMax - 2);
+        pecas = (altura + largura) / 4 + 1;
+        break;
+    case 3:
+        durabilidade = gerarNmrAleatorio(duraMin, duraMin + 10);
+        decaimento = gerarNmrAleatorio(decaiMax - 2, decaiMax);
+        regeneracao = gerarNmrAleatorio(regenMin, regenMin + 3);
+        pecas = 4;
+        break;
+    default:
+        printf("Opcao Invalida! Dificuldade MEDIA escolhida!\n");
+        durabilidade = gerarNmrAleatorio(duraMin + 5, duraMax - 5);
+        decaimento = gerarNmrAleatorio(decaiMin + 1, decaiMax - 1);
+        regeneracao = gerarNmrAleatorio(regenMin + 1, regenMax - 1);
+        pecas = (altura + largura) / 4;
+        break;
+    }
     
     preencheMapa(&mapa,&pecas);
+    
+    fprintf(fp, "%d %d %d\n", durabilidade, decaimento, regeneracao);
+    fprintf(fp, "%d %d\n", altura, largura);
 
     for (int i = 0; i < altura; i++)
     { // escreve no txt

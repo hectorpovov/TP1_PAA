@@ -3,16 +3,16 @@
 
 #include "../include/TAD_Nave.h"
 
-#define largMin 6
-#define largMax 10
-#define altMin 6
-#define altMax 10
-#define duraMin 30
-#define duraMax 40
-#define decaiMin 3
-#define decaiMax 5
-#define regenMin 5
-#define regenMax 10
+#define largMin 8
+#define largMax 15
+#define altMin 8
+#define altMax 15
+#define duraMin 25
+#define duraMax 50
+#define decaiMin 2
+#define decaiMax 8
+#define regenMin 2
+#define regenMax 16
 
 
 extern char fig[4];
