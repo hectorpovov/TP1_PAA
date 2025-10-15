@@ -11,12 +11,14 @@ int gerarNmrAleatorio(int min, int max){
 }
 
 int setorValido(Mapa *mapa, int y, int x) {
+    char c = mapa->posicoes[y][x].caractere;
     if (y < 0 || y >= mapa->altura || x < 0 || x >= mapa->largura)
         return 0;
-
-    char c = mapa->posicoes[y][x].caractere;
-
-    return (c == '.');
+    else if(c == '.' || c == '|' || c == '-'){
+        return 1;
+    }else{
+        return 0;
+    }
 }
 
 
@@ -61,7 +63,11 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
 
     while (y != yFim || x != xFim) {
         if (setorValido(mapa, y, x)) {
-            if (direcao == 1)
+            if(mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|'){
+                mapa->posicoes[y][x].caractere = '+';
+                return;
+            }
+            else if (direcao == 1)
                 mapa->posicoes[y][x].caractere = fig[1];
             else if (direcao == 2)
                 mapa->posicoes[y][x].caractere = fig[2];
@@ -92,11 +98,9 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
 }
 
 void criaPercursoMapa(Mapa *mapa, int *pecas, int y, int x, int xFim, int yFim) {
-    printf(" inicio: %d %d", y, x);
-    printf(" fim: %d %d\n", yFim, xFim);
     fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
     criaNovaRota(mapa,pecas,y, x);
-    //criaCruzamentoPrevisto(mapa,posXIni,posXfim,posYfim,posYfim);
+    criaNovaRota(mapa,pecas,yFim, xFim);
 }
 
 
