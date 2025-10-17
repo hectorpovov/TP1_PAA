@@ -123,9 +123,32 @@ void Movimentar(Nave * nave, Mapa * mapa, short * finalizouJornada, int linha, i
             tentaMovimentar(nave, mapa, &tempFinalizouJornada, novaLinha, novaColuna, iterador,chamadas,nivelMaximoRecursao);
             direcao++;
         }
-    }else{
-        printf("ERRO: NAVE SE MOVEU PARA O LUGAR ERRADO\n");
+    }else if (mapa->posicoes[linha][coluna].caractere == 'E'){
+        if(nave->pecasRestantes > 2){
+            printf("Voce nao tem pecas suficientes para passar pelo inimigo\n");
+            return;
+        }
+
+        // Se tiver pecas suficientes, perde 3 de durabilidade e segue
+        nave->durabilidade -= 3;
+        printf("A nave perdeu 3 de durabilidade ao passar pelo inimigo\n");
+        if(nave->durabilidade <= 0){
+            printf("A nave foi destruida pelo inimigo");
+            *finalizouJornada = 0;
+            return;
+        }
+
+        direcao = 0;
+        while(!tempFinalizouJornada && direcao < 4){
+            tempFinalizouJornada = 0;
+            novaLinha = linha + v[direcao];
+            novaColuna = coluna + h[direcao];
+            
+            tentaMovimentar(nave, mapa, &tempFinalizouJornada, novaLinha, novaColuna, iterador, chamadas, nivelMaximoRecursao);
+            direcao++;
+        }
     }
+        printf("ERRO: NAVE SE MOVEU PARA O LUGAR ERRADO\n");
     *finalizouJornada = tempFinalizouJornada;
 
 }
