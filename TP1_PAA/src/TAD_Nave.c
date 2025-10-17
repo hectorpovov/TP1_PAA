@@ -147,8 +147,9 @@ void Movimentar(Nave * nave, Mapa * mapa, short * finalizouJornada, int linha, i
             tentaMovimentar(nave, mapa, &tempFinalizouJornada, novaLinha, novaColuna, iterador, chamadas, nivelMaximoRecursao);
             direcao++;
         }
-    }
+    }else{
         printf("ERRO: NAVE SE MOVEU PARA O LUGAR ERRADO\n");
+    }
     *finalizouJornada = tempFinalizouJornada;
 
 }
