@@ -10,7 +10,7 @@ int gerarNmrAleatorio(int min, int max){
     return (rand() % (max - min + 1)) + min;
 }
 
-int setorValido(Mapa *mapa, int y, int x) {
+int setorValido(Mapa *mapa, int y, int x) { //modificado com - e |
     char c = mapa->posicoes[y][x].caractere;
     if (y < 0 || y >= mapa->altura || x < 0 || x >= mapa->largura)
         return 0;
@@ -41,7 +41,9 @@ void criaNovaRota(Mapa *mapa,int *pecas, int yFim, int xFim){
     || mapa->posicoes[y][x].caractere == 'F');
 
     //mapa->posicoes[y][x].caractere = 'G'; //debugs
-
+    if(verificaColisoes(mapa,y,x,yFim,xFim) || verificaColisoes(mapa,yFim,xFim,y,x)){//mod
+        return;
+    }
     fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
     fazCaminhoEntrePontos(mapa,pecas,yFim,xFim,y,x);
 }
@@ -58,6 +60,33 @@ void adicionaPeca(Mapa *mapa,int *pecas, int y, int x, int yFim, int xFim){
     }
 }
 
+int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim) { //modificado
+    int colisoes = 0;
+
+    while (y != yFim || x != xFim) {
+        if (mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|') {
+            colisoes++;
+            if (colisoes >= 2) {
+                return 1; // caminho colide mais de 2 vezes 
+            }
+        }
+        // vertical primeirp q nem fazCaminhoEntrePontos()
+        if (y != yFim) {
+            if (y < yFim)
+                y++;
+            else
+                y--;
+        }
+        else if (x != xFim) {
+            if (x < xFim)
+                x++;
+            else
+                x--;
+        }
+    }
+    return 0;
+}
+
 void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim) {
     int direcao = -1;
 
@@ -65,7 +94,7 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
         if (setorValido(mapa, y, x)) {
             if(mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|'){
                 mapa->posicoes[y][x].caractere = '+';
-                return;
+                //return;//modificado pra voltar pro antigo e so retirar o if
             }
             else if (direcao == 1)
                 mapa->posicoes[y][x].caractere = fig[1];
@@ -131,9 +160,9 @@ void criaMapaAleatorio(){
 
     int largura = gerarNmrAleatorio(largMin, largMax);
     int altura = gerarNmrAleatorio(altMin, altMax);
-    int durabilidade = gerarNmrAleatorio(duraMin, duraMax);
-    int decaimento = gerarNmrAleatorio(decaiMin, decaiMax);
-    int regeneracao = gerarNmrAleatorio(regenMin, regenMax);
+    int durabilidade = 0;
+    int decaimento = 0;
+    int regeneracao = 0;
     
     InicializaMapaVazio(&mapa, altura, largura);
     limparMapa(&mapa);
