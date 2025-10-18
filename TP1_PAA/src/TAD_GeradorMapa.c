@@ -41,9 +41,9 @@ void criaNovaRota(Mapa *mapa,int *pecas, int yFim, int xFim){
     || mapa->posicoes[y][x].caractere == 'F');
 
     //mapa->posicoes[y][x].caractere = 'G'; //debugs
-    if(verificaColisoes(mapa,y,x,yFim,xFim) || verificaColisoes(mapa,yFim,xFim,y,x)){//mod
-        return;
-    }
+    // if(verificaColisoes(mapa,y,x,yFim,xFim) || verificaColisoes(mapa,yFim,xFim,y,x)){//mod
+    //     return;
+    // }
     fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
     fazCaminhoEntrePontos(mapa,pecas,yFim,xFim,y,x);
 }
@@ -66,8 +66,8 @@ int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim) { //modificad
     while (y != yFim || x != xFim) {
         if (mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|') {
             colisoes++;
-            if (colisoes >= 2) {
-                return 1; // caminho colide mais de 2 vezes 
+            if (colisoes > 1) {
+                return 1; // caminho colide mais de 1 veze
             }
         }
         // vertical primeirp q nem fazCaminhoEntrePontos()
@@ -87,13 +87,56 @@ int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim) { //modificad
     return 0;
 }
 
+void detectaCruzamentosMapa(Mapa *mapa) {
+    for (int y = 0; y < mapa->altura; y++) {
+        for (int x = 0; x < mapa->largura; x++) {
+            char atual = mapa->posicoes[y][x].caractere;
+
+            if (atual == 'X' || atual == 'F' || atual == 'P')
+                continue;
+
+            if (atual != '-' && atual != '|' && atual != '+')
+                continue;
+
+            int tem_horizontal = 0;
+            int tem_vertical = 0;
+
+            if (x > 0) {
+                char c = mapa->posicoes[y][x - 1].caractere;
+                if (c == '-' || c == '+' || c == 'P' || c == 'F' || c == 'X')
+                    tem_horizontal = 1;
+            }
+            if (x < mapa->largura - 1) {
+                char c = mapa->posicoes[y][x + 1].caractere;
+                if (c == '-' || c == '+' || c == 'P' || c == 'F' || c == 'X')
+                    tem_horizontal = 1;
+            }
+
+            if (y > 0) {
+                char c = mapa->posicoes[y - 1][x].caractere;
+                if (c == '|' || c == '+' || c == 'P' || c == 'F' || c == 'X')
+                    tem_vertical = 1;
+            }
+            if (y < mapa->altura - 1) {
+                char c = mapa->posicoes[y + 1][x].caractere;
+                if (c == '|' || c == '+' || c == 'P' || c == 'F' || c == 'X')
+                    tem_vertical = 1;
+            }
+
+            if (tem_horizontal && tem_vertical)
+                mapa->posicoes[y][x].caractere = '+';
+        }
+    }
+}
+
+
 void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim) {
     int direcao = -1;
 
     while (y != yFim || x != xFim) {
         if (setorValido(mapa, y, x)) {
             if(mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|'){
-                mapa->posicoes[y][x].caractere = '+';
+                //adicionaCruzamento(mapa,y,x);
                 //return;//modificado pra voltar pro antigo e so retirar o if
             }
             else if (direcao == 1)
@@ -121,21 +164,13 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
                 x = x - 1;
             direcao = 1;
         }
-        adicionaPeca(mapa,pecas,y,x,yFim,xFim);
-        
+        adicionaPeca(mapa,pecas,y,x,yFim,xFim);    
     }
 }
 
-void criaPercursoMapa(Mapa *mapa, int *pecas, int y, int x, int xFim, int yFim) {
-    fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
-    criaNovaRota(mapa,pecas,y, x);
-    criaNovaRota(mapa,pecas,yFim, xFim);
-}
-
-
 void preencheMapa(Mapa *mapa, int *pecas){
     int y = gerarNmrAleatorio(0, mapa->altura - 1); 
-    int x = gerarNmrAleatorio(0, mapa->largura - 1);
+    int x = gerarNmrAleatorio(0, mapa->largura/2);
     mapa->posicoes[y][x].caractere = 'X';
 
     int yFim = 0;
@@ -143,12 +178,15 @@ void preencheMapa(Mapa *mapa, int *pecas){
     int distancia = 0;
     do {
         yFim = gerarNmrAleatorio(0, mapa->altura - 1);
-        xFim = gerarNmrAleatorio(0, mapa->largura - 1);
+        xFim = gerarNmrAleatorio(mapa->largura/2, mapa->largura - 1);
         distancia = abs(yFim - y) + abs(xFim - x);
     } while (distancia < 2); // garantir 2 de distancia entre X e F pra n dar BO
 
     mapa->posicoes[yFim][xFim].caractere = 'F';
-    criaPercursoMapa(mapa, pecas, y,x, xFim, yFim);
+    fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
+    criaNovaRota(mapa,pecas,y, x);
+    criaNovaRota(mapa,pecas,yFim, xFim);
+    detectaCruzamentosMapa(mapa);
 }
 
 void criaMapaAleatorio(){

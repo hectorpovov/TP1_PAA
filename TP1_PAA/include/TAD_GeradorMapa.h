@@ -28,7 +28,6 @@ void adicionaCruzamento(Mapa *mapa, int y, int x);
 void criaNovaRota(Mapa *mapa, int *pecas, int yFim, int xFim);
 void adicionaPeca(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim);
 void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim);
-void criaPercursoMapa(Mapa *mapa, int *pecas, int posXIni, int posYIni, int posXfim, int posYfim);
 int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim);
 
 #endif
