@@ -1,39 +1,48 @@
-# Compilador
+# Compilador e flags
 CC = gcc
+CFLAGS = -Wall -Iinclude
 
-# Flags de compilação
-CFLAGS = -Iinclude -Wall -Wextra -O2
-
-# Diretórios
+# Pastas
 SRC_DIR = src
 OBJ_DIR = obj
-BIN = main.exe
+BIN = main
 
 # Fontes e objetos
-SRC = $(SRC_DIR)/main.c $(SRC_DIR)/TAD_Mapa.c $(SRC_DIR)/TAD_Nave.c $(SRC_DIR)/TAD_GeradorMapa.c
-OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+SRC = $(SRC_DIR)/main.c \
+      $(SRC_DIR)/TAD_GeradorMapa.c \
+      $(SRC_DIR)/TAD_Mapa.c \
+      $(SRC_DIR)/TAD_Nave.c
+
+OBJ = $(OBJ_DIR)/main.o \
+      $(OBJ_DIR)/TAD_GeradorMapa.o \
+      $(OBJ_DIR)/TAD_Mapa.o \
+      $(OBJ_DIR)/TAD_Nave.o
+
+# Detecta sistema operacional (para nome do executável)
+ifeq ($(OS),Windows_NT)
+    EXE = $(BIN).exe
+else
+    EXE = $(BIN)
+endif
 
 # Regra padrão
-all: $(BIN)
+all: $(EXE)
 
 # Linkagem final
-$(BIN): $(OBJ)
-	$(CC) $(OBJ) -o $(BIN)
+$(EXE): $(OBJ)
+	$(CC) $(OBJ) -o $@
 
-# Compilar .c em .o
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+# Compilação dos .c em .o
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Cria o diretório obj se não existir
-$(OBJ_DIR):
-	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-
-# Limpa os arquivos compilados
+# Limpeza (Linux e Windows)
 clean:
-	@if exist $(OBJ_DIR) rmdir /s /q $(OBJ_DIR)
-	@if exist $(BIN) del $(BIN)
+ifeq ($(OS),Windows_NT)
+	del /Q $(OBJ_DIR)\*.o $(EXE)
+else
+	rm -f $(OBJ_DIR)/*.o $(EXE)
+endif
 
-# Executa o programa
-run: all
-	$(BIN)
+# Recompila tudo
+rebuild: clean all
