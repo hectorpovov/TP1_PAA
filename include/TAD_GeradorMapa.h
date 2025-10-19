@@ -1,8 +1,9 @@
-#ifndef GERADORMAPA_H
-#define GERADORMAPA_H
+#ifndef TAD_GERADORMAPA_H
+#define TAD_GERADORMAPA_H
 
 #include "../include/TAD_Nave.h"
 
+// Limites
 #define largMin 8
 #define largMax 15
 #define altMin 8
@@ -14,20 +15,19 @@
 #define regenMin 2
 #define regenMax 16
 
-
 extern char fig[4];
 
+// principal
 void criaMapaAleatorio();
+
+// utilitarios criar mapa
 int gerarNmrAleatorio(int min, int max);
-
-void preencheMapa(Mapa *mapa, int *pecas);
-
 int setorValido(Mapa *mapa, int y, int x);
 void adicionaCruzamento(Mapa *mapa, int y, int x);
-
-void criaNovaRota(Mapa *mapa, int *pecas, int yFim, int xFim);
 void adicionaPeca(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim);
+void criaNovaRota(Mapa *mapa, int *pecas, int yFim, int xFim);
 void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int xFim);
-int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim);
+void detectaCruzamentosMapa(Mapa *mapa);
+void preencheMapa(Mapa *mapa, int *pecas);
 
 #endif

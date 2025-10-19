@@ -21,7 +21,6 @@ int setorValido(Mapa *mapa, int y, int x) { //modificado com - e |
     }
 }
 
-
 void adicionaCruzamento(Mapa *mapa, int y, int x) {
     if(mapa->posicoes[y][x].caractere == 'F'){
         return;
@@ -40,10 +39,6 @@ void criaNovaRota(Mapa *mapa,int *pecas, int yFim, int xFim){
     }while ((abs(yFim - y) <= 1 || abs(xFim - x) <= 1)|| !setorValido(mapa, y, x) 
     || mapa->posicoes[y][x].caractere == 'F');
 
-    //mapa->posicoes[y][x].caractere = 'G'; //debugs
-    // if(verificaColisoes(mapa,y,x,yFim,xFim) || verificaColisoes(mapa,yFim,xFim,y,x)){//mod
-    //     return;
-    // }
     fazCaminhoEntrePontos(mapa,pecas, y, x, yFim, xFim);
     fazCaminhoEntrePontos(mapa,pecas,yFim,xFim,y,x);
 }
@@ -60,33 +55,6 @@ void adicionaPeca(Mapa *mapa,int *pecas, int y, int x, int yFim, int xFim){
     }
 }
 
-int verificaColisoes(Mapa *mapa, int y, int x, int yFim, int xFim) { //modificado
-    int colisoes = 0;
-
-    while (y != yFim || x != xFim) {
-        if (mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|') {
-            colisoes++;
-            if (colisoes > 1) {
-                return 1; // caminho colide mais de 1 veze
-            }
-        }
-        // vertical primeirp q nem fazCaminhoEntrePontos()
-        if (y != yFim) {
-            if (y < yFim)
-                y++;
-            else
-                y--;
-        }
-        else if (x != xFim) {
-            if (x < xFim)
-                x++;
-            else
-                x--;
-        }
-    }
-    return 0;
-}
-
 void detectaCruzamentosMapa(Mapa *mapa) {
     for (int y = 0; y < mapa->altura; y++) {
         for (int x = 0; x < mapa->largura; x++) {
@@ -98,32 +66,32 @@ void detectaCruzamentosMapa(Mapa *mapa) {
             if (atual != '-' && atual != '|' && atual != '+')
                 continue;
 
-            int tem_horizontal = 0;
-            int tem_vertical = 0;
+            int temHorizontal = 0;
+            int temVertical = 0;
 
             if (x > 0) {
                 char c = mapa->posicoes[y][x - 1].caractere;
                 if (c == '-' || c == '+' || c == 'P' || c == 'F' || c == 'X')
-                    tem_horizontal = 1;
+                    temHorizontal = 1;
             }
             if (x < mapa->largura - 1) {
                 char c = mapa->posicoes[y][x + 1].caractere;
                 if (c == '-' || c == '+' || c == 'P' || c == 'F' || c == 'X')
-                    tem_horizontal = 1;
+                    temHorizontal = 1;
             }
 
             if (y > 0) {
                 char c = mapa->posicoes[y - 1][x].caractere;
                 if (c == '|' || c == '+' || c == 'P' || c == 'F' || c == 'X')
-                    tem_vertical = 1;
+                    temVertical = 1;
             }
             if (y < mapa->altura - 1) {
                 char c = mapa->posicoes[y + 1][x].caractere;
                 if (c == '|' || c == '+' || c == 'P' || c == 'F' || c == 'X')
-                    tem_vertical = 1;
+                    temVertical = 1;
             }
 
-            if (tem_horizontal && tem_vertical)
+            if (temHorizontal && temVertical)
                 mapa->posicoes[y][x].caractere = '+';
         }
     }
@@ -135,18 +103,14 @@ void fazCaminhoEntrePontos(Mapa *mapa, int *pecas, int y, int x, int yFim, int x
 
     while (y != yFim || x != xFim) {
         if (setorValido(mapa, y, x)) {
-            if(mapa->posicoes[y][x].caractere == '-' || mapa->posicoes[y][x].caractere == '|'){
-                //adicionaCruzamento(mapa,y,x);
-                //return;//modificado pra voltar pro antigo e so retirar o if
-            }
-            else if (direcao == 1)
+           
+            if (direcao == 1)
                 mapa->posicoes[y][x].caractere = fig[1];
             else if (direcao == 2)
                 mapa->posicoes[y][x].caractere = fig[2];
             else
                 mapa->posicoes[y][x].caractere = fig[0];
         }
-
         if (y != yFim) {
             if (direcao != 2 && direcao != -1)
                 adicionaCruzamento(mapa, y, x);
@@ -246,9 +210,9 @@ void criaMapaAleatorio(){
         pecas = (altura + largura) / 4 + 1;
         break;
     case 3:
-        durabilidade = gerarNmrAleatorio(duraMin, duraMin + 10);
-        decaimento = gerarNmrAleatorio(decaiMax - 2, decaiMax);
-        regeneracao = gerarNmrAleatorio(regenMin, regenMin + 3);
+        durabilidade = gerarNmrAleatorio(duraMin, duraMin + 30);
+        decaimento = gerarNmrAleatorio(decaiMax - 4, decaiMax);
+        regeneracao = gerarNmrAleatorio(regenMin, regenMin + 4);
         pecas = 4;
         break;
     default:
