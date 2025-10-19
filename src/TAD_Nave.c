@@ -143,13 +143,13 @@ void Movimentar(Nave * nave, Mapa * mapa, short * finalizouJornada, int linha, i
         }
     }else if (mapa->posicoes[linha][coluna].caractere == 'E'){
         if(nave->pecasRestantes > 2){
-            printf("Voce nao tem pecas suficientes para passar pelo inimigo\n");
+            //printf("Voce nao tem pecas suficientes para passar pelo inimigo\n");
             return;
         }
 
-        // Se tiver pecas suficientes, perde 3 de durabilidade e segue
-        nave->durabilidade -= 3;
-        printf("A nave perdeu 3 de durabilidade ao passar pelo inimigo\n");
+        // Se tiver pecas suficientes, perde durabilidade
+        nave->durabilidade -= 5;
+        //printf("A nave perdeu 3 de durabilidade ao passar pelo inimigo\n");
         if(nave->durabilidade <= 0){
             printf("A nave foi destruida pelo inimigo");
             *finalizouJornada = 0;
